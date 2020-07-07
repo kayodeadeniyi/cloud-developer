@@ -12,14 +12,25 @@ const router: Router = Router();
 
 async function generatePassword(plainTextPassword: string): Promise<string> {
     //@TODO Use Bcrypt to Generated Salted Hashed Passwords
+    return bcrypt.hash(plainTextPassword, 10, function (err, hash) {
+        // Store hash in database
+    });
 }
 
 async function comparePasswords(plainTextPassword: string, hash: string): Promise<boolean> {
     //@TODO Use Bcrypt to Compare your password to your Salted Hashed Password
+    return bcrypt.compare(plainTextPassword, hash, function (err, res) {
+        if (res) {
+            // Passwords match
+        } else {
+            // Passwords don't match
+        }
+    });
 }
 
 function generateJWT(user: User): string {
     //@TODO Use jwt to create a new JWT Payload containing
+    return ''
 }
 
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
@@ -27,13 +38,13 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
     // if (!req.headers || !req.headers.authorization){
     //     return res.status(401).send({ message: 'No authorization headers.' });
     // }
-    
+
 
     // const token_bearer = req.headers.authorization.split(' ');
     // if(token_bearer.length != 2){
     //     return res.status(401).send({ message: 'Malformed token.' });
     // }
-    
+
     // const token = token_bearer[1];
 
     // return jwt.verify(token, "hello", (err, decoded) => {
@@ -44,8 +55,8 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
     // });
 }
 
-router.get('/verification', 
-    requireAuth, 
+router.get('/verification',
+    requireAuth,
     async (req: Request, res: Response) => {
         return res.status(200).send({ auth: true, message: 'Authenticated.' });
 });
