@@ -12,23 +12,18 @@ import { config } from '../../../../config/config';
 const router: Router = Router();
 
 async function generatePassword(plainTextPassword: string): Promise<string> {
-    return bcrypt.hash(plainTextPassword, 10, function (err, hash) {
-        // Store hash in database
-    });
+    const saltRound = 10;
+    const salt = await bcrypt.genSalt(saltRound)
+    const hash = await bcrypt.hash(plainTextPassword, salt);
+    return hash;
 }
 
 async function comparePasswords(plainTextPassword: string, hash: string): Promise<boolean> {
-    return bcrypt.compare(plainTextPassword, hash, function (err, res) {
-        if (res) {
-            // Passwords match
-        } else {
-            // Passwords don't match
-        }
-    });
+    return await bcrypt.compare(plainTextPassword, hash);
 }
 
 function generateJWT(user: User): string {
-    return jwt.sign(user, config.jwt.secret)
+    return jwt.sign(user.toJSON(), config.jwt.secret)
 }
 
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
@@ -36,9 +31,8 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
         return res.status(401).send({ message: 'No authorization headers.' });
     }
 
-
     const token_bearer = req.headers.authorization.split(' ');
-    if(token_bearer.length != 2){
+    if (token_bearer.length != 2){
         return res.status(401).send({ message: 'Malformed token.' });
     }
 
